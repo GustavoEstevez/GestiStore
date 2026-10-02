@@ -1,0 +1,91 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %} - Inicio{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'tienda/css/productos.css' %}">
+
+<div class="inicio-hero">
+  <div class="inicio-hero-content">
+    <span class="inicio-hero-badge">Bienvenido/a, {{ user.username }}</span>
+    <h1>Tu tienda de productos</h1>
+    <p>Explorá nuestro catálogo, agregá productos al carrito y finalizá tu compra en minutos.</p>
+    <div class="inicio-hero-actions">
+      <a href="{% url 'lista_productos' %}" class="btn btn-primary">Ver catálogo</a>
+      {% if user.perfil.rol == 'admin' %}
+      <a href="{% url 'crear_producto' %}" class="btn btn-secondary">Agregar producto</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="inicio-stats">
+  <div class="inicio-stat">
+    <strong>{{ total_productos }}</strong>
+    <span>Productos disponibles</span>
+  </div>
+  <div class="inicio-stat">
+    <strong>{{ categorias|length }}</strong>
+    <span>Categorías</span>
+  </div>
+</div>
+
+{% if destacados %}
+<h2 class="inicio-seccion-titulo">Productos recientes</h2>
+<div class="productos-grid">
+  {% for p in destacados %}
+  <a href="{% url 'detalle_producto' p.pk %}" class="producto-card">
+    <div class="producto-card-img">
+      {% if p.imagen %}
+      <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+      {% else %}
+      <span class="producto-card-sin-imagen">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </span>
+      {% endif %}
+      {% if not p.activo %}<span class="producto-card-soldout">No disponible</span>{% endif %}
+    </div>
+    <div class="producto-card-body">
+      <span class="producto-card-categoria">{{ p.get_categoria_display }}</span>
+      <h3 class="producto-card-nombre">{{ p.nombre }}</h3>
+      <div class="producto-card-precio">${{ p.precio }}</div>
+      <div class="producto-card-stock">
+        {% if p.stock > 10 %}
+        <span class="stock-ok">En stock</span>
+        {% elif p.stock > 0 %}
+        <span class="stock-bajo">Quedan {{ p.stock }}</span>
+        {% else %}
+        <span class="stock-agotado">Sin stock</span>
+        {% endif %}
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="inicio-categorias">
+  <h2 class="inicio-seccion-titulo">Categorías</h2>
+  <div class="inicio-categorias-grid">
+    {% for value, label in categorias %}
+    <a href="{% url 'lista_productos' %}?categoria={{ value }}" class="categoria-card">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        {% if value == 'electronica' %}
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+        {% elif value == 'ropa' %}
+        <path d="M20.38 3.46 16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/>
+        {% elif value == 'hogar' %}
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        {% elif value == 'deportes' %}
+        <circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><path d="M2 12h20"/>
+        {% else %}
+        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+        {% endif %}
+      </svg>
+      <span>{{ label }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

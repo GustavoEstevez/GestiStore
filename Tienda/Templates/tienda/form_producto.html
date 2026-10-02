@@ -1,0 +1,86 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %} - {{ titulo }}{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'tienda/css/productos.css' %}">
+
+<div class="form-producto-header">
+  <h1>{{ titulo }}</h1>
+  <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Volver al catálogo</a>
+</div>
+
+<div class="form-producto-card">
+  {% if producto and producto.imagen %}
+  <div class="form-producto-imagen-actual">
+    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+  </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="auth-error">
+      <ul style="margin:0;padding-left:16px;">
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}<li>{{ field }}: {{ error }}</li>{% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="form-fila">
+      <div class="form-campo">
+        <label>Nombre del producto</label>
+        {{ form.nombre }}
+      </div>
+      <div class="form-campo">
+        <label>Categoría</label>
+        {{ form.categoria }}
+      </div>
+    </div>
+
+    <div class="form-campo">
+      <label>Descripción</label>
+      {{ form.descripcion }}
+      <div class="form-ayuda">Contá todos los detalles que quieras mostrar a tus clientes.</div>
+    </div>
+
+    <div class="form-fila">
+      <div class="form-campo">
+        <label>Precio ($)</label>
+        {{ form.precio }}
+      </div>
+      <div class="form-campo">
+        <label>Stock</label>
+        {{ form.stock }}
+      </div>
+      <div class="form-campo">
+        <label>Peso (kg)</label>
+        {{ form.peso_kg }}
+      </div>
+    </div>
+
+    <div class="form-campo">
+      <label>Imagen del producto</label>
+      {{ form.imagen }}
+      <div class="form-ayuda">Subí la imagen que quieras. Formatos: JPG, PNG, WebP.</div>
+    </div>
+
+    <div class="form-checkbox">
+      {{ form.activo }}
+      <label for="id_activo">Producto visible en el catálogo</label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar producto
+      </button>
+      <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

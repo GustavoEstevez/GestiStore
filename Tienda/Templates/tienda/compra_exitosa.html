@@ -1,0 +1,116 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %} - Compra exitosa{% endblock %}
+{% block content %}
+
+<div class="exito-box">
+  <div class="exito-icon">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#137333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h1>¡Compra realizada con éxito!</h1>
+  <p>Tu pedido fue procesado. Guardá tu código de compra.</p>
+
+  {% if venta %}
+  <div class="exito-venta">
+    <div class="exito-codigo">{{ venta.codigo }}</div>
+    <div class="exito-detalles">
+      <div><span>Fecha</span> <strong>{{ venta.fecha_venta|date:"d/m/Y H:i" }}</strong></div>
+      <div><span>Total</span> <strong>${{ venta.total }}</strong></div>
+      <div><span>Método de pago</span> <strong>{{ venta.get_metodo_pago_display }}</strong></div>
+    </div>
+
+    <h2>Productos comprados</h2>
+    <div class="exito-items">
+      {% for d in detalles %}
+      <div class="exito-item">
+        <div class="resumen-item-icon">
+          {% if d.producto.imagen %}
+          <img src="{{ d.producto.imagen.url }}" alt="">
+          {% else %}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          {% endif %}
+        </div>
+        <div class="exito-item-nombre">
+          <div>{{ d.producto.nombre }}</div>
+          <div class="exito-item-detalle">{{ d.cantidad }} x ${{ d.precio_unitario }}</div>
+        </div>
+        <div class="exito-item-subtotal">${{ d.subtotal }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="exito-actions">
+    <a href="{% url 'mis_compras' %}" class="btn btn-secondary">Ver mis compras</a>
+    <a href="{% url 'lista_productos' %}" class="btn btn-primary">Seguir comprando</a>
+  </div>
+</div>
+
+<style>
+.exito-box {
+  text-align: center; padding: 48px 24px;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  max-width: 640px; margin: 0 auto;
+}
+.exito-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: #e6f4ea; display: flex; align-items: center;
+  justify-content: center; margin: 0 auto 20px;
+}
+.exito-box h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.6rem; font-weight: 700; color: #000; margin-bottom: 8px;
+}
+.exito-box > p { color: #5f6368; margin-bottom: 28px; }
+.exito-venta {
+  text-align: left; background: #f8f9fa;
+  border-radius: 12px; padding: 24px; margin-bottom: 28px;
+}
+.exito-codigo {
+  font-family: 'Courier New', monospace;
+  font-size: 1.4rem; font-weight: 700; letter-spacing: 2px;
+  color: #000; text-align: center; margin-bottom: 20px;
+}
+.exito-detalles {
+  display: grid; gap: 8px; margin-bottom: 20px;
+  padding-bottom: 16px; border-bottom: 1px solid #e8eaed;
+}
+.exito-detalles > div {
+  display: flex; justify-content: space-between; font-size: 0.9rem;
+}
+.exito-detalles span { color: #5f6368; }
+.exito-detalles strong { color: #000; }
+.exito-venta h2 {
+  font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: #5f6368; margin-bottom: 12px;
+}
+.exito-item {
+  display: flex; align-items: center; gap: 14px; padding: 10px 0;
+}
+.exito-item + .exito-item { border-top: 1px solid #e8eaed; }
+.resumen-item-icon {
+  width: 48px; height: 48px; border-radius: 8px;
+  background: #fff; flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.resumen-item-icon img { width: 100%; height: 100%; object-fit: cover; }
+.exito-item-nombre { flex: 1; font-weight: 600; font-size: 0.9rem; }
+.exito-item-detalle { color: #9aa0a6; font-weight: 400; font-size: 0.82rem; }
+.exito-item-subtotal { font-weight: 700; color: #000; }
+.exito-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+  .exito-box { padding: 32px 16px; }
+  .exito-box h1 { font-size: 1.3rem; }
+  .exito-venta { padding: 18px; }
+  .exito-codigo { font-size: 1.1rem; }
+  .exito-detalles > div { flex-direction: column; gap: 2px; }
+  .exito-actions { flex-direction: column; }
+  .exito-actions .btn { width: 100%; text-align: center; }
+}
+</style>
+
+{% endblock %}

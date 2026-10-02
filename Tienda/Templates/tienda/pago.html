@@ -1,0 +1,338 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %} - Pago{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'tienda/css/pago.css' %}">
+
+<style>
+.pago-header {
+  margin-bottom: 28px;
+}
+.pago-header h1 { margin: 0; }
+.pago-header p { color: #5f6368; font-size: 0.92rem; margin-top: 4px; }
+
+.pago-grid {
+  display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start;
+}
+
+.pago-card {
+  background: #fff; border-radius: 16px; padding: 28px 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.pago-card h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.15rem; font-weight: 700; color: #000;
+  margin-bottom: 20px; padding-bottom: 12px;
+  border-bottom: 2px solid #e8eaed;
+}
+
+.pago-metodos {
+  display: flex; gap: 12px; margin-bottom: 24px;
+}
+.pago-metodos label { flex: 1; cursor: pointer; }
+.pago-metodos input[type="radio"] { display: none; }
+.metodo-btn {
+  text-align: center; padding: 14px 12px; border-radius: 12px;
+  border: 2px solid #e8eaed; font-weight: 600; font-size: 0.88rem;
+  transition: all 0.2s; display: flex; align-items: center;
+  justify-content: center; gap: 8px; font-family: 'Poppins', sans-serif;
+}
+.metodo-btn svg { flex-shrink: 0; }
+.metodo-btn.activo {
+  border-color: #000; background: #000; color: #fff;
+}
+.metodo-btn:hover:not(.activo) { border-color: #000; }
+
+.pago-campo { margin-bottom: 16px; }
+.pago-campo label {
+  display: block; font-size: 0.82rem; font-weight: 600; color: #5f6368;
+  margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.pago-campo input {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid #d2d5d9; border-radius: 10px;
+  font-family: 'Inter', sans-serif; font-size: 0.92rem;
+  background: #fff; color: #000; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.pago-campo input:focus {
+  border-color: #000; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.pago-campo input::placeholder { color: #9aa0a6; }
+
+.pago-fila {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+}
+
+.card-preview {
+  background: linear-gradient(135deg, #1a1a2e, #2d2d5e);
+  border-radius: 16px; padding: 24px; color: #fff;
+  margin-bottom: 20px; font-family: 'Courier New', monospace;
+  position: relative; overflow: hidden;
+}
+.card-preview::before {
+  content: ''; position: absolute; top: -50%; right: -30%;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.card-preview-header {
+  font-size: 0.7rem; opacity: 0.6; margin-bottom: 20px;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.card-preview-numero {
+  font-size: 1.3rem; letter-spacing: 3px; margin-bottom: 20px;
+}
+.card-preview-footer {
+  display: flex; justify-content: space-between; font-size: 0.8rem;
+}
+.card-preview-label { opacity: 0.5; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.transferencia-box {
+  background: #f8f9fa; border: 1.5px dashed #d2d5d9;
+  border-radius: 12px; padding: 20px; margin-bottom: 16px;
+}
+.transferencia-box h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem; font-weight: 700; color: #000; margin-bottom: 12px;
+}
+.transferencia-box p {
+  font-size: 0.88rem; color: #5f6368; margin-bottom: 6px;
+}
+.transferencia-box p strong { color: #000; }
+.transferencia-nota {
+  margin-top: 12px; color: #9aa0a6; font-size: 0.85rem;
+  padding-top: 12px; border-top: 1px solid #e8eaed;
+}
+
+.btn-pago {
+  width: 100%; padding: 14px; border-radius: 12px;
+  background: #000; color: #fff; border: none;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600; font-size: 1rem;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  margin-top: 8px;
+}
+.btn-pago:hover {
+  background: #222; transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Resumen */
+.resumen-item {
+  padding: 14px 0; border-bottom: 1px solid #e8eaed;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.resumen-item-icon {
+  width: 48px; height: 48px; border-radius: 8px;
+  background: #f0f0f0; flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.resumen-item-icon img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.resumen-item-icon svg { color: #9aa0a6; }
+.resumen-item-info { flex: 1; min-width: 0; }
+.resumen-item-nombre {
+  font-weight: 600; font-size: 0.9rem; color: #000;
+  margin-bottom: 2px;
+}
+.resumen-item-detalle {
+  color: #9aa0a6; font-size: 0.82rem;
+}
+.resumen-item-subtotal {
+  font-weight: 700; color: #000; white-space: nowrap;
+}
+.resumen-total {
+  padding-top: 16px; display: flex; justify-content: space-between;
+  align-items: center;
+}
+.resumen-total-label { font-size: 1.05rem; font-weight: 600; color: #000; }
+.resumen-total-monto {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem; font-weight: 700; color: #000;
+}
+.seguro-box {
+  background: #e6f4ea; border: none; border-radius: 12px;
+  padding: 16px 20px; margin-top: 16px;
+}
+.seguro-texto { color: #137333; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; }
+.seguro-texto svg { flex-shrink: 0; }
+
+@media (max-width: 800px) {
+  .pago-grid { grid-template-columns: 1fr; }
+  .pago-metodos { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .pago-card { padding: 20px 18px; }
+  .pago-fila { grid-template-columns: 1fr; gap: 0; }
+  .pago-metodos { gap: 8px; }
+  .metodo-btn { padding: 12px 8px; font-size: 0.8rem; }
+}
+</style>
+
+<div class="pago-header">
+  <h1>Finalizar compra</h1>
+  <p>Revisá tu pedido y elegí el método de pago</p>
+</div>
+
+<div class="pago-grid">
+  <div class="pago-card">
+    <h2>Método de pago</h2>
+
+    <form method="post" action="{% url 'procesar_pago' %}" id="form-pago">
+      {% csrf_token %}
+
+      <div class="pago-metodos">
+        <label>
+          <input type="radio" name="metodo_pago" value="tarjeta" checked onchange="mostrarMetodo(this.value)">
+          <div class="metodo-btn activo" id="btn-tarjeta">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Tarjeta
+          </div>
+        </label>
+        <label>
+          <input type="radio" name="metodo_pago" value="debito" onchange="mostrarMetodo(this.value)">
+          <div class="metodo-btn" id="btn-debito">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="8" cy="16" r="2"/></svg>
+            Débito
+          </div>
+        </label>
+        <label>
+          <input type="radio" name="metodo_pago" value="transferencia" onchange="mostrarMetodo(this.value)">
+          <div class="metodo-btn" id="btn-transferencia">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Transferencia
+          </div>
+        </label>
+      </div>
+
+      <div id="seccion-tarjeta">
+        <div class="pago-campo">
+          <label>Número de tarjeta</label>
+          <input type="text" name="numero_tarjeta" id="numero_tarjeta" maxlength="19"
+                 placeholder="1234 5678 9012 3456" oninput="formatearTarjeta(this)">
+        </div>
+        <div class="pago-campo">
+          <label>Nombre del titular</label>
+          <input type="text" name="nombre_tarjeta" placeholder="Como figura en la tarjeta">
+        </div>
+        <div class="pago-fila">
+          <div class="pago-campo">
+            <label>Vencimiento</label>
+            <input type="text" name="vencimiento" placeholder="MM/AA" maxlength="5"
+                   oninput="formatearVencimiento(this)">
+          </div>
+          <div class="pago-campo">
+            <label>CVV</label>
+            <input type="text" name="cvv" placeholder="123" maxlength="4"
+                   oninput="this.value=this.value.replace(/\D/g,'')">
+          </div>
+        </div>
+
+        <div id="card-preview" class="card-preview">
+          <div class="card-preview-header">GESTISTORE PAY</div>
+          <div id="prev-numero" class="card-preview-numero">
+            &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;
+          </div>
+          <div class="card-preview-footer">
+            <div>
+              <div class="card-preview-label">Titular</div>
+              <div id="prev-nombre">TU NOMBRE</div>
+            </div>
+            <div>
+              <div class="card-preview-label">Vence</div>
+              <div id="prev-vence">MM/AA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="seccion-transferencia" class="hidden">
+        <div class="transferencia-box">
+          <h3>Datos para transferencia</h3>
+          <p><strong>CBU:</strong> 0000 0000 0000 0000 0000</p>
+          <p><strong>Alias:</strong> GESTISTORE.PAGOS</p>
+          <p><strong>Titular:</strong> GestiStore S.A.</p>
+          <div class="transferencia-nota">
+            Una vez realizada la transferencia, tu compra se confirmará automáticamente.
+          </div>
+        </div>
+        <input type="hidden" name="numero_tarjeta" value="0000000000000000">
+        <input type="hidden" name="nombre_tarjeta" value="Transferencia">
+        <input type="hidden" name="vencimiento" value="00/00">
+        <input type="hidden" name="cvv" value="000">
+      </div>
+
+      <button type="submit" class="btn-pago">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirmar pago &mdash; ${{ total }}
+      </button>
+    </form>
+  </div>
+
+  <div>
+    <div class="pago-card">
+      <h2>Resumen del pedido</h2>
+      {% for item in items %}
+      <div class="resumen-item">
+        <div class="resumen-item-icon">
+          {% if item.producto_imagen %}
+          <img src="{{ item.producto_imagen }}" alt="">
+          {% else %}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          {% endif %}
+        </div>
+        <div class="resumen-item-info">
+          <div class="resumen-item-nombre">{{ item.producto_nombre }}</div>
+          <div class="resumen-item-detalle">{{ item.producto_categoria }}</div>
+          <div class="resumen-item-detalle">Cantidad: {{ item.cantidad }}</div>
+        </div>
+        <div class="resumen-item-subtotal">${{ item.subtotal }}</div>
+      </div>
+      {% endfor %}
+      <div class="resumen-total">
+        <span class="resumen-total-label">Total</span>
+        <span class="resumen-total-monto">${{ total }}</span>
+      </div>
+    </div>
+
+    <div class="seguro-box">
+      <div class="seguro-texto">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Tu compra está protegida. El comprobante se enviará a <strong>{{ request.user.email }}</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function mostrarMetodo(val) {
+  document.querySelectorAll('.metodo-btn').forEach(b => b.classList.remove('activo'));
+  document.getElementById('btn-' + val).classList.add('activo');
+  document.getElementById('seccion-tarjeta').style.display = (val === 'transferencia') ? 'none' : 'block';
+  document.getElementById('seccion-transferencia').style.display = (val === 'transferencia') ? 'block' : 'none';
+}
+
+function formatearTarjeta(input) {
+  let val = input.value.replace(/\D/g, '').substring(0, 16);
+  input.value = val.replace(/(.{4})/g, '$1 ').trim();
+  document.getElementById('prev-numero').textContent = input.value || '•••• •••• •••• ••••';
+}
+
+function formatearVencimiento(input) {
+  let val = input.value.replace(/\D/g, '').substring(0, 4);
+  if (val.length >= 2) val = val.substring(0,2) + '/' + val.substring(2);
+  input.value = val;
+  document.getElementById('prev-vence').textContent = val || 'MM/AA';
+}
+
+document.querySelector('[name=nombre_tarjeta]').addEventListener('input', function() {
+  document.getElementById('prev-nombre').textContent = this.value.toUpperCase() || 'TU NOMBRE';
+});
+</script>
+
+{% endblock %}

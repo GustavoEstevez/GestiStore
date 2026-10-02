@@ -1,0 +1,129 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %} - {{ producto.nombre }}{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'tienda/css/productos.css' %}">
+<link rel="stylesheet" href="{% static 'tienda/css/detalle_producto.css' %}">
+
+<div class="detalle-flex">
+  <div class="detalle-galeria">
+    {% if producto.imagen %}
+    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="detalle-imagen">
+    {% else %}
+    <div class="detalle-imagen-placeholder">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>Sin imagen</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="detalle-info">
+    <span class="producto-card-categoria">{{ producto.get_categoria_display }}</span>
+    <h1 class="detalle-nombre">{{ producto.nombre }}</h1>
+
+    <div class="detalle-precio">${{ producto.precio }}</div>
+
+    <div class="detalle-stock">
+      {% if producto.stock > 10 %}
+      <span class="stock-ok">En stock ({{ producto.stock }} disponibles)</span>
+      {% elif producto.stock > 0 %}
+      <span class="stock-bajo">Quedan {{ producto.stock }} unidades</span>
+      {% else %}
+      <span class="stock-agotado">Sin stock</span>
+      {% endif %}
+    </div>
+
+    <p class="detalle-descripcion">
+      {{ producto.descripcion|default:"Sin descripción." }}
+    </p>
+
+    <div class="detalle-especificaciones">
+      {% if producto.peso_kg %}
+      <div class="detalle-spec">
+        <span class="detalle-spec-label">Peso</span>
+        <span class="detalle-spec-value">{{ producto.peso_kg }} kg</span>
+      </div>
+      {% endif %}
+      <div class="detalle-spec">
+        <span class="detalle-spec-label">Categoría</span>
+        <span class="detalle-spec-value">{{ producto.get_categoria_display }}</span>
+      </div>
+      <div class="detalle-spec">
+        <span class="detalle-spec-label">Código</span>
+        <span class="detalle-spec-value">#{{ producto.pk }}</span>
+      </div>
+    </div>
+
+    {% if user.perfil.rol == 'admin' %}
+    <div class="detalle-admin">
+      <a href="{% url 'editar_producto' producto.pk %}" class="btn btn-secondary">Editar</a>
+      <a href="{% url 'eliminar_producto' producto.pk %}" class="btn btn-danger">Eliminar</a>
+    </div>
+    {% endif %}
+
+    {% if producto.stock > 0 %}
+    <form method="post" action="{% url 'agregar_carrito' producto.pk %}" class="detalle-compra">
+      {% csrf_token %}
+      <div class="detalle-cantidad">
+        <label>Cantidad</label>
+        <div class="detalle-cantidad-input">
+          <button type="button" class="cant-btn" onclick="cambiarCant(-1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <input type="number" name="cantidad" id="cantidad" value="1" min="1" max="{{ producto.stock }}">
+          <button type="button" class="cant-btn" onclick="cambiarCant(1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-comprar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Agregar al carrito
+      </button>
+    </form>
+    {% else %}
+    <div class="detalle-agotado">
+      Este producto no está disponible en este momento.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if relacionados %}
+<h2 class="inicio-seccion-titulo">Productos relacionados</h2>
+<div class="productos-grid">
+  {% for p in relacionados %}
+  <a href="{% url 'detalle_producto' p.pk %}" class="producto-card">
+    <div class="producto-card-img">
+      {% if p.imagen %}
+      <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+      {% else %}
+      <span class="producto-card-sin-imagen">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </span>
+      {% endif %}
+    </div>
+    <div class="producto-card-body">
+      <span class="producto-card-categoria">{{ p.get_categoria_display }}</span>
+      <h3 class="producto-card-nombre">{{ p.nombre }}</h3>
+      <div class="producto-card-precio">${{ p.precio }}</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script>
+function cambiarCant(delta) {
+  const input = document.getElementById('cantidad');
+  let val = parseInt(input.value) || 1;
+  val += delta;
+  const max = parseInt(input.max) || 1;
+  if (val < 1) val = 1;
+  if (val > max) val = max;
+  input.value = val;
+}
+</script>
+
+{% endblock %}

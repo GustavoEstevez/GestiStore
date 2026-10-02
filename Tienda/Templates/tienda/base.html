@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GestiStore{% block title %}{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tienda/css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="{% url 'inicio' %}" class="header-brand">
+      <span class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </span>
+      <div class="brand-text">
+        <div class="brand-title">GestiStore</div>
+        <div class="brand-sub">Tu tienda online</div>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="{% url 'inicio' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Inicio</a>
+      <a href="{% url 'lista_productos' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Productos</a>
+    </nav>
+
+    <div class="header-right">
+      {% if user.is_authenticated %}
+      <div class="header-right-group header-right-group-desktop">
+        <a href="{% url 'mis_compras' %}" class="user-btn user-btn-secondary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 13l4-4 4 4 4-6"/></svg> Mis Compras</a>
+        <a href="{% url 'ver_carrito' %}" class="user-btn user-btn-secondary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Carrito</a>
+        <span class="user-name"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" class="inline-form">
+        {% csrf_token %}
+        <button type="submit" class="user-btn user-btn-logout"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Salir</button>
+        </form>
+      </div>
+      {% else %}
+      <div class="header-right-group header-right-group-desktop">
+        <a href="{% url 'login' %}" class="user-btn user-btn-secondary">Iniciar sesión</a>
+        <a href="{% url 'registro' %}" class="user-btn user-btn-primary">Registrarse</a>
+      </div>
+      {% endif %}
+
+      <button type="button" class="navbar-toggle" id="navbar-toggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <nav class="mobile-menu-nav">
+    <a href="{% url 'inicio' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Inicio</a>
+    <a href="{% url 'lista_productos' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Productos</a>
+    {% if user.is_authenticated %}
+    <div class="mobile-menu-divider"></div>
+    <a href="{% url 'mis_compras' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 13l4-4 4 4 4-6"/></svg> Mis Compras</a>
+    <a href="{% url 'ver_carrito' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Carrito</a>
+    <form method="post" action="{% url 'logout' %}" class="mobile-menu-logout">
+      {% csrf_token %}
+      <button type="submit" class="user-btn user-btn-logout"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Cerrar sesión</button>
+    </form>
+    {% else %}
+    <div class="mobile-menu-divider"></div>
+    <a href="{% url 'login' %}" class="user-btn user-btn-secondary">Iniciar sesión</a>
+    <a href="{% url 'registro' %}" class="user-btn user-btn-primary">Registrarse</a>
+    {% endif %}
+  </nav>
+</div>
+
+<script>
+(function() {
+  var toggle = document.getElementById('navbar-toggle');
+  var menu = document.getElementById('mobile-menu');
+  if (!toggle || !menu) return;
+  toggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var open = menu.classList.toggle('open');
+    toggle.classList.toggle('active', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  menu.addEventListener('click', function(e) {
+    if (e.target.closest('a')) {
+      menu.classList.remove('open');
+      toggle.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.header') && !e.target.closest('#mobile-menu')) {
+      menu.classList.remove('open');
+      toggle.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+</script>
+
+<div class="container{% block container_class %}{% endblock %}">
+  {% if messages %}
+    <ul class="messages">
+      {% for msg in messages %}
+        <li>{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <a href="{% url 'inicio' %}" class="footer-brand">
+      <span class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </span>
+      <div class="brand-text">
+        <div class="brand-title">GestiStore</div>
+        <div class="brand-sub">Tu tienda online</div>
+      </div>
+    </a>
+    <div class="footer-contact">
+      <a href="mailto:contacto@gestistore.com"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> contacto@gestistore.com</a>
+      <a href="tel:+5491123456789"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +54 9 11 2345-6789</a>
+    </div>
+    <div class="footer-right">
+      <span class="footer-copy">GestiStore &mdash; Todos los derechos reservados.</span>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">GestiStore &copy; 2026</span>
+  </div>
+</footer>
+
+</body>
+</html>

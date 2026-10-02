@@ -1,0 +1,60 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %} - Registro{% endblock %}
+{% block container_class %} auth-page{% endblock %}
+{% block content %}
+
+<div class="auth-wrapper">
+  <div class="auth-image">
+    <div class="auth-image-content">
+      <span class="brand-logo" style="background:#fff;color:#000;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </span>
+      <h2>Creá tu cuenta</h2>
+      <p>Registrate para empezar a comprar productos de nuestra tienda.</p>
+    </div>
+  </div>
+
+  <div class="auth-form">
+    <div class="auth-title">Registro</div>
+    <div class="auth-sub">Completá el formulario para crear tu cuenta</div>
+
+    {% if form.errors %}
+    <div class="auth-error">
+      <ul style="margin:0;padding-left:16px;">
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="auth-field">
+        <label>Usuario</label>
+        {{ form.username }}
+      </div>
+      <div class="auth-field">
+        <label>Email</label>
+        {{ form.email }}
+      </div>
+      <div class="auth-field">
+        <label>Contraseña</label>
+        {{ form.password1 }}
+        <div style="font-size:0.75rem;color:#9aa0a6;margin-top:4px;">Mínimo 8 caracteres. No puede ser similar a tu usuario.</div>
+      </div>
+      <div class="auth-field">
+        <label>Confirmar contraseña</label>
+        {{ form.password2 }}
+      </div>
+      <button type="submit" class="auth-btn">Crear cuenta</button>
+    </form>
+
+    <div class="auth-footer">
+      ¿Ya tenés cuenta? <a href="{% url 'login' %}">Iniciá sesión</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

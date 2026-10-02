@@ -1,0 +1,121 @@
+/* ─── CARRITO ─────────────────────────────── */
+.carrito-header { margin-bottom: 28px; }
+.carrito-header h1 { margin: 0; }
+
+.carrito-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px; margin-bottom: 24px;
+}
+
+.carrito-card {
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex; flex-direction: column;
+  position: relative; min-height: 260px;
+}
+.carrito-card:hover {
+  transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+}
+.carrito-card-bg {
+  position: absolute; inset: -4px;
+  background-size: cover; background-position: center;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+.carrito-card:hover .carrito-card-bg { transform: scale(1.06); }
+.carrito-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.65) 100%);
+  z-index: 1;
+}
+.carrito-card-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; flex: 1;
+  padding: 20px 24px 16px;
+}
+.carrito-card-badge {
+  display: inline-flex; align-items: center; align-self: flex-start;
+  padding: 3px 12px; border-radius: 20px;
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; background: rgba(255,255,255,0.15);
+  color: #fff; margin-bottom: 16px;
+}
+.carrito-card-nombre {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem; font-weight: 700; color: #fff;
+  margin-bottom: 6px;
+}
+.carrito-card-info { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.carrito-card-info-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.8rem; color: rgba(255,255,255,0.8);
+}
+.carrito-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 0 0; margin-top: auto;
+  border-top: 1.5px dashed rgba(255,255,255,0.2);
+}
+.carrito-card-precio {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700; font-size: 1.1rem; color: #fff;
+}
+.carrito-card-detalle { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+.carrito-card-remove {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px;
+  background: rgba(255,255,255,0.12); color: #fff;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600; font-size: 0.75rem;
+  text-decoration: none; white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.carrito-card-remove:hover {
+  background: rgba(217,48,37,0.7); transform: translateY(-1px);
+}
+
+.carrito-resumen {
+  background: #fff; border-radius: 16px; padding: 24px 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.carrito-resumen-total-label { font-size: 0.85rem; color: #5f6368; font-weight: 500; }
+.carrito-resumen-total {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.8rem; font-weight: 700; color: #000;
+  line-height: 1.1;
+}
+.carrito-resumen-count { font-size: 0.82rem; color: #9aa0a6; margin-top: 4px; }
+.carrito-resumen-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.carrito-vacio {
+  text-align: center; padding: 80px 20px;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.carrito-vacio-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #f0f0f0; display: flex; align-items: center;
+  justify-content: center; margin: 0 auto 16px;
+}
+.carrito-vacio h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.3rem; font-weight: 700; color: #000; margin-bottom: 6px;
+}
+.carrito-vacio p { color: #5f6368; margin-bottom: 24px; }
+
+@media (max-width: 700px) {
+  .carrito-grid { grid-template-columns: 1fr; gap: 14px; }
+  .carrito-card { min-height: 220px; }
+  .carrito-resumen { flex-direction: column; text-align: center; padding: 20px; }
+  .carrito-resumen-actions { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .carrito-resumen-actions { flex-direction: column; align-items: stretch; }
+  .carrito-resumen-actions .btn { text-align: center; width: 100%; }
+  .carrito-card-content { padding: 16px 18px 14px; }
+}

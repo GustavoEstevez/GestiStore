@@ -1,0 +1,68 @@
+{% extends 'tienda/base.html' %}
+{% load static %}
+{% block title %} - Carrito{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'tienda/css/carrito.css' %}">
+
+<div class="carrito-header">
+  <h1>Carrito</h1>
+</div>
+
+{% if items %}
+<div class="carrito-grid">
+  {% for item in items %}
+  <div class="carrito-card">
+    <div class="carrito-card-bg" style="background-image: url('{% if item.producto_imagen %}{{ item.producto_imagen }}{% else %}{% static 'tienda/images/sin-imagen.jpg' %}{% endif %}')"></div>
+    <div class="carrito-card-overlay"></div>
+    <div class="carrito-card-content">
+      <span class="carrito-card-badge">{{ item.producto_categoria }}</span>
+      <div class="carrito-card-nombre">{{ item.producto_nombre }}</div>
+      <div class="carrito-card-info">
+        <div class="carrito-card-info-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Cantidad: {{ item.cantidad }}
+        </div>
+      </div>
+      <div class="carrito-card-footer">
+        <div>
+          <div class="carrito-card-precio">${{ item.subtotal }}</div>
+          <div class="carrito-card-detalle">${{ item.producto_precio }} c/u</div>
+        </div>
+        <a href="{% url 'eliminar_carrito' item.key %}" class="carrito-card-remove">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          Quitar
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="carrito-resumen">
+  <div class="carrito-resumen-info">
+    <div class="carrito-resumen-total-label">Total</div>
+    <div class="carrito-resumen-total">${{ total }}</div>
+    <div class="carrito-resumen-count">{{ items|length }} {{ items|length|pluralize:"producto,productos" }} en el carrito</div>
+  </div>
+  <div class="carrito-resumen-actions">
+    <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Seguir comprando</a>
+    <a href="{% url 'confirmar_compra' %}" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      Ir a pagar
+    </a>
+  </div>
+</div>
+
+{% else %}
+<div class="carrito-vacio">
+  <div class="carrito-vacio-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+  </div>
+  <h2>Tu carrito está vacío</h2>
+  <p>Explorá el catálogo y agregá productos</p>
+  <a href="{% url 'lista_productos' %}" class="btn btn-primary">Ver productos</a>
+</div>
+{% endif %}
+
+{% endblock %}
