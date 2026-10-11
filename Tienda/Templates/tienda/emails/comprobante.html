@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<body style="margin:0;background:#f4f6f8;font-family:Arial,sans-serif;color:#172033">
+  <div style="max-width:640px;margin:32px auto;background:#fff;border-radius:14px;overflow:hidden">
+    <div style="background:#123b6d;color:#fff;padding:26px 32px">
+      <h1 style="margin:0;font-size:25px">AmpereStore</h1>
+      <p style="margin:8px 0 0">Comprobante de compra</p>
+    </div>
+    <div style="padding:28px 32px">
+      <p><strong>Código:</strong> {{ venta.codigo }}<br>
+      <strong>Fecha:</strong> {{ venta.fecha_venta|date:"d/m/Y H:i" }}<br>
+      <strong>Cliente:</strong> {{ venta.usuario.username }}<br>
+      <strong>Método:</strong> {{ venta.get_metodo_pago_display }}</p>
+      <table style="width:100%;border-collapse:collapse;margin-top:22px">
+        <thead><tr style="background:#eef4fa;text-align:left"><th style="padding:11px">Producto</th><th style="padding:11px">Cant.</th><th style="padding:11px;text-align:right">Subtotal</th></tr></thead>
+        <tbody>
+          {% for detalle in detalles %}
+          <tr><td style="padding:11px;border-bottom:1px solid #e4e8ed">{{ detalle.producto.nombre }}<br><small>${{ detalle.precio_unitario }} c/u</small></td><td style="padding:11px;border-bottom:1px solid #e4e8ed">{{ detalle.cantidad }}</td><td style="padding:11px;border-bottom:1px solid #e4e8ed;text-align:right">${{ detalle.subtotal }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p style="font-size:22px;text-align:right;color:#123b6d"><strong>Total: ${{ venta.total }}</strong></p>
+      <p style="color:#5f6b7a">Gracias por tu compra.</p>
+    </div>
+  </div>
+</body>
+</html>

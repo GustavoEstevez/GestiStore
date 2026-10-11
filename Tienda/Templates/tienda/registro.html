@@ -7,8 +7,8 @@
 <div class="auth-wrapper">
   <div class="auth-image">
     <div class="auth-image-content">
-      <span class="brand-logo" style="background:#fff;color:#000;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="brand-logo" aria-hidden="true">
+        <img src="{% static 'tienda/images/ampere-isotipo-blanco.png' %}" alt="" width="148" height="177">
       </span>
       <h2>Creá tu cuenta</h2>
       <p>Registrate para empezar a comprar productos de nuestra tienda.</p>
@@ -42,7 +42,7 @@
       <div class="auth-field">
         <label>Contraseña</label>
         {{ form.password1 }}
-        <div style="font-size:0.75rem;color:#9aa0a6;margin-top:4px;">Mínimo 8 caracteres. No puede ser similar a tu usuario.</div>
+        <div style="font-size:0.75rem;color:var(--amp-muted);margin-top:4px;">Mínimo 8 caracteres. No puede ser similar a tu usuario.</div>
       </div>
       <div class="auth-field">
         <label>Confirmar contraseña</label>

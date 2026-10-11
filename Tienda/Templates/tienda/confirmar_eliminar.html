@@ -5,7 +5,7 @@
 
 <div class="confirmar-box">
   <div class="confirmar-icon">
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d93025" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
   </div>
   <h1>Confirmar eliminación</h1>
   <p>¿Estás seguro de que querés eliminar el producto <strong>"{{ objeto.nombre }}"</strong>?</p>
@@ -20,27 +20,5 @@
   </form>
 </div>
 
-<style>
-.confirmar-box {
-  text-align: center; padding: 48px 24px;
-  background: #fff; border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  max-width: 480px; margin: 40px auto;
-}
-.confirmar-icon {
-  width: 64px; height: 64px; border-radius: 50%;
-  background: #fef2f2; display: flex; align-items: center;
-  justify-content: center; margin: 0 auto 16px;
-}
-.confirmar-box h1 {
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.4rem; font-weight: 700; color: #000; margin-bottom: 12px;
-}
-.confirmar-box p { color: #5f6368; margin-bottom: 8px; }
-.confirmar-nota { color: #9aa0a6 !important; font-size: 0.85rem; margin-bottom: 24px !important; }
-.confirmar-actions {
-  display: flex; gap: 12px; justify-content: center; margin-top: 24px;
-}
-</style>
 
 {% endblock %}

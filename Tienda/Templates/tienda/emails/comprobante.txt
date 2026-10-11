@@ -1,0 +1,13 @@
+AMPERESTORE - COMPROBANTE DE COMPRA
+
+Código: {{ venta.codigo }}
+Fecha: {{ venta.fecha_venta|date:"d/m/Y H:i" }}
+Cliente: {{ venta.usuario.username }}
+Método de pago: {{ venta.get_metodo_pago_display }}
+
+DETALLE
+{% for detalle in detalles %}{{ detalle.producto.nombre }} - {{ detalle.cantidad }} x ${{ detalle.precio_unitario }} = ${{ detalle.subtotal }}
+{% endfor %}
+TOTAL: ${{ venta.total }}
+
+Gracias por tu compra.

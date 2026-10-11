@@ -1,10 +1,43 @@
-from django.shortcuts import render, get_object_or_404, redirect
+import logging
+import secrets
+from datetime import timedelta
+
+from django.conf import settings
+from django.contrib.auth import login
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+
 from .models import Producto, Venta, DetalleVenta, Perfil
-from .forms import ProductoForm, RegistroForm
+from .forms import LoginForm, ProductoForm, RegistroForm
+from .emails import send_login_code, send_purchase_receipt
+
+
+logger = logging.getLogger(__name__)
+
+OTP_SESSION_KEYS = (
+    'otp_user_id', 'otp_code_hash', 'otp_expires_at', 'otp_attempts',
+    'otp_backend', 'otp_next', 'otp_sent_at',
+)
+
+
+class PasswordResetConBaseView(auth_views.PasswordResetView):
+    """Usa la URL de la demo para enlaces de email, si fue configurada."""
+
+    def form_valid(self, form):
+        self.extra_email_context = {
+            **(self.extra_email_context or {}),
+            'public_base_url': settings.PUBLIC_BASE_URL,
+        }
+        return super().form_valid(form)
 
 
 # ─── DECORADOR ADMIN ──────────────────────────────────────
@@ -38,6 +71,127 @@ def inicio(request):
 
 
 # ─── AUTH ─────────────────────────────────────────────────
+def _clear_pending_otp(request):
+    for key in OTP_SESSION_KEYS:
+        request.session.pop(key, None)
+
+
+def _masked_email(email):
+    local, separator, domain = email.partition('@')
+    if not separator:
+        return email
+    visible = local[:2] if len(local) > 2 else local[:1]
+    return f'{visible}{"*" * max(3, len(local) - len(visible))}@{domain}'
+
+
+def _issue_login_code(request, user):
+    code = f'{secrets.randbelow(1_000_000):06d}'
+    now = timezone.now()
+    # Solo reemplazamos el código vigente cuando Gmail aceptó el mensaje.
+    send_login_code(user, code)
+    request.session['otp_user_id'] = user.pk
+    request.session['otp_code_hash'] = make_password(code)
+    request.session['otp_expires_at'] = int(
+        (now + timedelta(seconds=settings.EMAIL_OTP_EXPIRY_SECONDS)).timestamp()
+    )
+    request.session['otp_attempts'] = 0
+    request.session['otp_sent_at'] = int(now.timestamp())
+
+
+def iniciar_sesion(request):
+    if request.user.is_authenticated:
+        return redirect('inicio')
+
+    form = LoginForm(request=request, data=request.POST or None)
+    next_url = request.POST.get('next') or request.GET.get('next') or reverse('inicio')
+    if not url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        next_url = reverse('inicio')
+
+    if request.method == 'POST' and form.is_valid():
+        user = form.get_user()
+        if not user.email:
+            form.add_error(None, 'Tu cuenta no tiene un email registrado. Contactá al administrador.')
+        else:
+            _clear_pending_otp(request)
+            request.session['otp_backend'] = user.backend
+            request.session['otp_next'] = next_url
+            try:
+                _issue_login_code(request, user)
+            except Exception:
+                logger.exception('No se pudo enviar el código de acceso al usuario %s', user.pk)
+                _clear_pending_otp(request)
+                form.add_error(None, 'No pudimos enviar el código. Intentá nuevamente en unos minutos.')
+            else:
+                return redirect('verificar_2fa')
+
+    return render(request, 'tienda/login.html', {'form': form, 'next': next_url})
+
+
+def verificar_2fa(request):
+    if request.user.is_authenticated:
+        return redirect('inicio')
+
+    user_id = request.session.get('otp_user_id')
+    expires_at = request.session.get('otp_expires_at', 0)
+    user = User.objects.filter(pk=user_id, is_active=True).first()
+    if not user or not request.session.get('otp_code_hash'):
+        _clear_pending_otp(request)
+        messages.info(request, 'Primero ingresá tu usuario y contraseña.')
+        return redirect('login')
+
+    if int(timezone.now().timestamp()) > expires_at:
+        _clear_pending_otp(request)
+        messages.error(request, 'El código venció. Iniciá sesión nuevamente.')
+        return redirect('login')
+
+    if request.method == 'POST' and request.POST.get('action') == 'resend':
+        seconds_since_send = int(timezone.now().timestamp()) - request.session.get('otp_sent_at', 0)
+        if seconds_since_send < settings.EMAIL_OTP_RESEND_SECONDS:
+            messages.info(request, f'Esperá {settings.EMAIL_OTP_RESEND_SECONDS - seconds_since_send} segundos para reenviar.')
+        else:
+            try:
+                _issue_login_code(request, user)
+            except Exception:
+                logger.exception('No se pudo reenviar el código de acceso al usuario %s', user.pk)
+                messages.error(request, 'No pudimos reenviar el código. Intentá nuevamente.')
+            else:
+                messages.success(request, 'Te enviamos un código nuevo.')
+        return redirect('verificar_2fa')
+
+    error = None
+    if request.method == 'POST':
+        code = request.POST.get('codigo', '').strip()
+        attempts = request.session.get('otp_attempts', 0) + 1
+        request.session['otp_attempts'] = attempts
+
+        if attempts > settings.EMAIL_OTP_MAX_ATTEMPTS:
+            _clear_pending_otp(request)
+            messages.error(request, 'Superaste el límite de intentos. Iniciá sesión nuevamente.')
+            return redirect('login')
+
+        if code.isdigit() and len(code) == 6 and check_password(
+            code, request.session['otp_code_hash']
+        ):
+            backend = request.session.get('otp_backend')
+            next_url = request.session.get('otp_next', reverse('inicio'))
+            _clear_pending_otp(request)
+            login(request, user, backend=backend)
+            messages.success(request, 'Inicio de sesión confirmado.')
+            return redirect(next_url)
+
+        remaining = settings.EMAIL_OTP_MAX_ATTEMPTS - attempts
+        error = f'El código no es válido. Te quedan {remaining} intentos.'
+
+    return render(request, 'tienda/verificar_2fa.html', {
+        'email_oculto': _masked_email(user.email),
+        'error': error,
+    })
+
+
 def registro(request):
     form = RegistroForm(request.POST or None)
     if form.is_valid():
@@ -230,37 +384,49 @@ def procesar_pago(request):
             messages.error(request, 'El CVV debe tener 3 o 4 dígitos.')
             return redirect('confirmar_compra')
 
-    # Verificar stock y calcular total
-    total = 0
-    for key, item in carrito.items():
-        producto = get_object_or_404(Producto, pk=item['producto_id'])
-        if item['cantidad'] > producto.stock:
-            messages.error(request, f'No hay stock suficiente de "{producto.nombre}".')
-            return redirect('ver_carrito')
-        total += producto.precio * item['cantidad']
+    # La venta y el descuento de stock se confirman como una sola operación.
+    with transaction.atomic():
+        productos = {}
+        total = 0
+        for item in carrito.values():
+            producto = get_object_or_404(
+                Producto.objects.select_for_update(),
+                pk=item['producto_id'],
+            )
+            if item['cantidad'] > producto.stock:
+                messages.error(request, f'No hay stock suficiente de "{producto.nombre}".')
+                return redirect('ver_carrito')
+            productos[producto.pk] = producto
+            total += producto.precio * item['cantidad']
 
-    # Crear venta
-    venta = Venta.objects.create(
-        usuario=request.user,
-        total=total,
-        metodo_pago=metodo,
-        estado='completada',
-    )
-
-    # Crear detalles y descontar stock
-    for key, item in carrito.items():
-        producto = get_object_or_404(Producto, pk=item['producto_id'])
-        DetalleVenta.objects.create(
-            venta=venta,
-            producto=producto,
-            cantidad=item['cantidad'],
-            precio_unitario=producto.precio,
+        venta = Venta.objects.create(
+            usuario=request.user,
+            total=total,
+            metodo_pago=metodo,
+            estado='completada',
         )
-        producto.stock -= item['cantidad']
-        producto.save()
+
+        for item in carrito.values():
+            producto = productos[item['producto_id']]
+            DetalleVenta.objects.create(
+                venta=venta,
+                producto=producto,
+                cantidad=item['cantidad'],
+                precio_unitario=producto.precio,
+            )
+            producto.stock -= item['cantidad']
+            producto.save(update_fields=['stock'])
 
     request.session['carrito'] = {}
     request.session['ultima_compra'] = venta.codigo
+
+    receipt_sent = False
+    if request.user.email:
+        try:
+            receipt_sent = bool(send_purchase_receipt(venta))
+        except Exception:
+            logger.exception('No se pudo enviar el comprobante de la venta %s', venta.codigo)
+    request.session['comprobante_enviado'] = receipt_sent
 
     return redirect('compra_exitosa')
 
@@ -273,6 +439,7 @@ def compra_exitosa(request):
     return render(request, 'tienda/compra_exitosa.html', {
         'venta': venta,
         'detalles': detalles,
+        'comprobante_enviado': request.session.pop('comprobante_enviado', None),
     })
 
 

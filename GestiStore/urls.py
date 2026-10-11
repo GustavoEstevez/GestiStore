@@ -3,14 +3,33 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import reverse_lazy
 from Tienda import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('login/', auth_views.LoginView.as_view(
-        template_name='tienda/login.html'), name='login'),
+    path('login/', views.iniciar_sesion, name='login'),
+    path('login/verificar/', views.verificar_2fa, name='verificar_2fa'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
+    path('recuperar-contrasena/', views.PasswordResetConBaseView.as_view(
+        template_name='tienda/password_reset_form.html',
+        email_template_name='tienda/emails/password_reset_email.txt',
+        html_email_template_name='tienda/emails/password_reset_email.html',
+        subject_template_name='tienda/emails/password_reset_subject.txt',
+        success_url=reverse_lazy('password_reset_done'),
+    ), name='password_reset'),
+    path('recuperar-contrasena/enviado/', auth_views.PasswordResetDoneView.as_view(
+        template_name='tienda/password_reset_done.html',
+    ), name='password_reset_done'),
+    path('recuperar-contrasena/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+        template_name='tienda/password_reset_confirm.html',
+        success_url=reverse_lazy('password_reset_complete'),
+    ), name='password_reset_confirm'),
+    path('recuperar-contrasena/completado/', auth_views.PasswordResetCompleteView.as_view(
+        template_name='tienda/password_reset_complete.html',
+    ), name='password_reset_complete'),
 
     path('', include('Tienda.urls')),
 ]

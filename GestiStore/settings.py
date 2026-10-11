@@ -7,11 +7,43 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def _load_local_env(path):
+    """Carga .env para desarrollo sin depender de paquetes externos."""
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key:
+            os.environ.setdefault(key, value)
+
+
+_load_local_env(BASE_DIR / '.env')
+
 SECRET_KEY = 'django-insecure-3y(nhx64%j#$t9w)%$nk5gxrror12k%2kr!z2=m^kg2l*^nng3'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+# Hosts habilitados para desarrollo. Se puede sobrescribir con
+# DJANGO_ALLOWED_HOSTS="localhost,127.0.0.1,otra-ip".
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        'DJANGO_ALLOWED_HOSTS',
+        'localhost,127.0.0.1,testserver,192.168.137.3',
+    ).split(',')
+    if host.strip()
+]
+
+# Dirección pública temporal usada en enlaces enviados por email. Al ejecutar
+# iniciar_red.ps1 se configura con la IP y el puerto elegidos para la demo.
+# Si queda vacía, Django usa automáticamente el host de la solicitud actual.
+PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', '').rstrip('/')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -67,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'es-ar'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
 USE_I18N = True
 USE_TZ = True
 
@@ -80,5 +112,29 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+# Correo: las credenciales se leen desde variables de entorno o desde .env.
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend',
+)
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv(
+    'DEFAULT_FROM_EMAIL',
+    f'AmpereStore <{EMAIL_HOST_USER}>' if EMAIL_HOST_USER else 'AmpereStore <noreply@localhost>',
+)
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '15'))
+
+# Segundo factor por email.
+EMAIL_OTP_EXPIRY_SECONDS = 600
+EMAIL_OTP_MAX_ATTEMPTS = 5
+EMAIL_OTP_RESEND_SECONDS = 60
+
+# Los enlaces de recuperación de contraseña vencen después de una hora.
+PASSWORD_RESET_TIMEOUT = 3600
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

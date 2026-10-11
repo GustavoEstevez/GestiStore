@@ -1,0 +1,1 @@
+Para inciar vamos a necesitar el siguiente comando: powershell -ExecutionPolicy Bypass -File .\iniciar_red.ps1 "LA IP DE PC EN EL MOMENTO"

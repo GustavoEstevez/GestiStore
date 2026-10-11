@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GestiStore{% block title %}{% endblock %}</title>
+  <title>AmpereStore{% block title %}{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'tienda/images/ampere-isotipo-azul.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,18 +16,18 @@
 <header class="header">
   <div class="header-inner">
     <a href="{% url 'inicio' %}" class="header-brand">
-      <span class="brand-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="brand-logo" aria-hidden="true">
+        <img src="{% static 'tienda/images/ampere-isotipo-blanco.png' %}" alt="" width="148" height="177">
       </span>
       <div class="brand-text">
-        <div class="brand-title">GestiStore</div>
-        <div class="brand-sub">Tu tienda online</div>
+        <div class="brand-title">AmpereStore</div>
+        <div class="brand-sub">Tecnología y componentes</div>
       </div>
     </a>
 
     <nav class="nav-links">
-      <a href="{% url 'inicio' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Inicio</a>
-      <a href="{% url 'lista_productos' %}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Productos</a>
+      <a href="{% url 'inicio' %}"{% if request.resolver_match.url_name == 'inicio' %} aria-current="page"{% endif %}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Inicio</a>
+      <a href="{% url 'lista_productos' %}"{% if request.resolver_match.url_name == 'lista_productos' %} aria-current="page"{% endif %}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Productos</a>
     </nav>
 
     <div class="header-right">
@@ -47,7 +48,7 @@
       </div>
       {% endif %}
 
-      <button type="button" class="navbar-toggle" id="navbar-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <button type="button" class="navbar-toggle" id="navbar-toggle" aria-controls="mobile-menu" aria-label="Abrir menú" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -106,7 +107,7 @@
   {% if messages %}
     <ul class="messages">
       {% for msg in messages %}
-        <li>{{ msg }}</li>
+        <li class="{{ msg.tags }}">{{ msg }}</li>
       {% endfor %}
     </ul>
   {% endif %}
@@ -117,12 +118,12 @@
 <footer class="footer">
   <div class="footer-inner">
     <a href="{% url 'inicio' %}" class="footer-brand">
-      <span class="brand-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="brand-logo" aria-hidden="true">
+        <img src="{% static 'tienda/images/ampere-isotipo-blanco.png' %}" alt="" width="148" height="177">
       </span>
       <div class="brand-text">
-        <div class="brand-title">GestiStore</div>
-        <div class="brand-sub">Tu tienda online</div>
+        <div class="brand-title">AmpereStore</div>
+        <div class="brand-sub">Tecnología y componentes</div>
       </div>
     </a>
     <div class="footer-contact">
@@ -130,11 +131,11 @@
       <a href="tel:+5491123456789"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +54 9 11 2345-6789</a>
     </div>
     <div class="footer-right">
-      <span class="footer-copy">GestiStore &mdash; Todos los derechos reservados.</span>
+      <span class="footer-copy">AmpereStore &mdash; Todos los derechos reservados.</span>
     </div>
   </div>
   <div class="footer-bottom">
-    <span class="footer-copy">GestiStore &copy; 2026</span>
+    <span class="footer-copy">AmpereStore &copy; 2026</span>
   </div>
 </footer>
 

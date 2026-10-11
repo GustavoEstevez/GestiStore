@@ -1,0 +1,7 @@
+Hola {{ usuario.username }},
+
+Tu código de acceso a AmpereStore es: {{ codigo }}
+
+Vence en {{ minutos }} minutos. Si no intentaste iniciar sesión, ignorá este mensaje.
+
+AmpereStore
