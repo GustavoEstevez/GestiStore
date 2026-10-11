@@ -118,8 +118,14 @@ font-size: .7rem; font-weight: 600; color: var(--amp-indigo);
 .stock-bajo { color: var(--amp-warning); font-weight: 600; }
 .stock-agotado { color: var(--amp-danger); font-weight: 600; }
 .producto-card-acciones {
-  display: flex; gap: 6px; flex-shrink: 0;
+  display: flex; gap: 8px; margin-top: 14px;
+  padding-top: 14px; border-top: 1px solid var(--amp-border);
 }
+.producto-card-acciones .btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; white-space: nowrap;
+}
+.producto-card-acciones .btn svg { flex-shrink: 0; }
 
 /* ─── LISTA DE PRODUCTOS ──────────────────── */
 .productos-header {
@@ -252,9 +258,8 @@ transform: translateY(-3px); box-shadow: var(--amp-shadow-hover); border-color: 
   .inicio-hero-actions .btn { width: 100%; text-align: center; }
   .inicio-stat strong { font-size: 1.5rem; }
   .producto-card-acciones {
-    flex-direction: column; margin-left: 8px;
+    flex-direction: column;
   }
-  .producto-card-acciones .btn { text-align: center; }
 }
 
 @media (max-width: 480px) {

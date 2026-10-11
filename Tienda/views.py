@@ -52,6 +52,13 @@ def solo_admin(view_func):
     return wrapper
 
 
+def es_admin(user):
+    try:
+        return user.perfil.rol == 'admin'
+    except Exception:
+        return False
+
+
 def error_403(request, exception=None):
     return render(request, 'tienda/403.html', status=403)
 
@@ -294,6 +301,8 @@ def eliminar_producto(request, pk):
 # ─── CARRITO ──────────────────────────────────────────────
 @login_required
 def agregar_carrito(request, pk):
+    if es_admin(request.user):
+        return redirect('historial_ventas')
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
         try:
@@ -331,6 +340,8 @@ def agregar_carrito(request, pk):
 
 @login_required
 def ver_carrito(request):
+    if es_admin(request.user):
+        return redirect('historial_ventas')
     carrito = request.session.get('carrito', {})
     items = []
     total = 0
@@ -343,6 +354,8 @@ def ver_carrito(request):
 
 @login_required
 def eliminar_carrito(request, key):
+    if es_admin(request.user):
+        return redirect('historial_ventas')
     carrito = request.session.get('carrito', {})
     if key in carrito:
         del carrito[key]
@@ -353,6 +366,8 @@ def eliminar_carrito(request, key):
 
 @login_required
 def confirmar_compra(request):
+    if es_admin(request.user):
+        return redirect('historial_ventas')
     carrito = request.session.get('carrito', {})
     if not carrito:
         messages.error(request, 'Tu carrito está vacío.')
@@ -370,6 +385,8 @@ def confirmar_compra(request):
 
 @login_required
 def procesar_pago(request):
+    if es_admin(request.user):
+        return redirect('historial_ventas')
     if request.method != 'POST':
         return redirect('ver_carrito')
 
@@ -460,6 +477,31 @@ def compra_exitosa(request):
 # ─── MIS COMPRAS ──────────────────────────────────────────
 @login_required
 def mis_compras(request):
+    if es_admin(request.user):
+        return redirect('historial_ventas')
     ventas = Venta.objects.filter(usuario=request.user, estado='completada')\
         .prefetch_related('detalles__producto').order_by('-fecha_venta')
     return render(request, 'tienda/mis_compras.html', {'ventas': ventas})
+
+
+# ─── HISTORIAL DE VENTAS (ADMIN) ──────────────────────────
+@login_required
+@solo_admin
+def historial_ventas(request):
+    ventas = Venta.objects.filter(estado='completada')\
+        .select_related('usuario')\
+        .prefetch_related('detalles__producto')\
+        .order_by('usuario__username', '-fecha_venta')
+
+    grupos = []
+    indice = {}
+    for venta in ventas:
+        grupo = indice.get(venta.usuario_id)
+        if grupo is None:
+            grupo = {'usuario': venta.usuario, 'ventas': [], 'total': 0}
+            indice[venta.usuario_id] = grupo
+            grupos.append(grupo)
+        grupo['ventas'].append(venta)
+        grupo['total'] += venta.total
+
+    return render(request, 'tienda/historial_ventas.html', {'grupos': grupos})

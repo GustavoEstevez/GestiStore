@@ -148,7 +148,7 @@ class ComprobanteCompraTests(TestCase):
             nombre='Teclado',
             precio='12500.00',
             stock=5,
-            categoria='electronica',
+            categoria='perifericos_gaming',
         )
         self.client.force_login(self.user)
         session = self.client.session
@@ -158,7 +158,7 @@ class ComprobanteCompraTests(TestCase):
                 'producto_nombre': self.producto.nombre,
                 'producto_precio': 12500.0,
                 'producto_imagen': '',
-                'producto_categoria': 'Electrónica',
+                'producto_categoria': 'Periféricos y Gaming',
                 'cantidad': 2,
             }
         }

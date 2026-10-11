@@ -60,9 +60,7 @@
       <a href="{% url 'editar_producto' producto.pk %}" class="btn btn-secondary">Editar</a>
       <a href="{% url 'eliminar_producto' producto.pk %}" class="btn btn-danger">Eliminar</a>
     </div>
-    {% endif %}
-
-    {% if producto.stock > 0 %}
+    {% elif producto.stock > 0 %}
     <form method="post" action="{% url 'agregar_carrito' producto.pk %}" class="detalle-compra">
       {% csrf_token %}
       <div class="detalle-cantidad">

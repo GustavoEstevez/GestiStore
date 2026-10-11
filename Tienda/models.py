@@ -21,10 +21,15 @@ class Perfil(models.Model):
 
 class Producto(models.Model):
     CATEGORIA_CHOICES = [
-        ('electronica', 'Electrónica'),
-        ('ropa', 'Ropa'),
-        ('hogar', 'Hogar'),
-        ('deportes', 'Deportes'),
+        ('informatica', 'Informática'),
+        ('componente_pc', 'Componente PC'),
+        ('perifericos_gaming', 'Periféricos y Gaming'),
+        ('redes_conectividad', 'Redes y Conectividad'),
+        ('celulares_accesorios', 'Celulares y Accesorios'),
+        ('cables_adaptadores', 'Cables y Adaptadores'),
+        ('electronica_desarrollo', 'Electrónica y Desarrollo'),
+        ('seguridad_domotica', 'Seguridad y Domótica'),
+        ('lectores_tarjetas', 'Lectores de Tarjetas'),
         ('otros', 'Otros'),
     ]
 
@@ -32,7 +37,7 @@ class Producto(models.Model):
     descripcion = models.TextField(blank=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
-    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES, default='otros')
+    categoria = models.CharField(max_length=30, choices=CATEGORIA_CHOICES, default='otros')
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
     peso_kg = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True,
                                   help_text="Peso en kilogramos")

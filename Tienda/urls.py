@@ -25,4 +25,7 @@ urlpatterns = [
 
     # Mis compras
     path('mis-compras/', views.mis_compras, name='mis_compras'),
+
+    # Historial de ventas (admin)
+    path('ventas/', views.historial_ventas, name='historial_ventas'),
 ]
