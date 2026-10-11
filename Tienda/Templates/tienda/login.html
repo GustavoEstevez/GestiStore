@@ -25,7 +25,7 @@
     </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" id="login-form">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}">
       <div class="auth-field">
@@ -39,7 +39,7 @@
           <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
         </div>
       </div>
-      <button type="submit" class="auth-btn">Ingresar</button>
+      <button type="submit" class="auth-btn" id="login-submit">Ingresar</button>
     </form>
 
     <div class="auth-footer">
@@ -47,5 +47,22 @@
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  var form = document.getElementById('login-form');
+  var button = document.getElementById('login-submit');
+  if (!form || !button) return;
+  form.addEventListener('submit', function(event) {
+    if (form.dataset.submitting === 'true') {
+      event.preventDefault();
+      return;
+    }
+    form.dataset.submitting = 'true';
+    button.disabled = true;
+    button.textContent = 'Enviando código…';
+  });
+})();
+</script>
 
 {% endblock %}

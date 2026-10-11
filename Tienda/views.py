@@ -98,6 +98,17 @@ def _issue_login_code(request, user):
     request.session['otp_sent_at'] = int(now.timestamp())
 
 
+def _has_recent_login_code(request, user):
+    now = int(timezone.now().timestamp())
+    sent_at = request.session.get('otp_sent_at', 0)
+    return (
+        request.session.get('otp_user_id') == user.pk
+        and bool(request.session.get('otp_code_hash'))
+        and request.session.get('otp_expires_at', 0) > now
+        and now - sent_at < settings.EMAIL_OTP_RESEND_SECONDS
+    )
+
+
 def iniciar_sesion(request):
     if request.user.is_authenticated:
         return redirect('inicio')
@@ -116,6 +127,9 @@ def iniciar_sesion(request):
         if not user.email:
             form.add_error(None, 'Tu cuenta no tiene un email registrado. Contactá al administrador.')
         else:
+            # Evita emails duplicados si el navegador repite el formulario.
+            if _has_recent_login_code(request, user):
+                return redirect('verificar_2fa')
             _clear_pending_otp(request)
             request.session['otp_backend'] = user.backend
             request.session['otp_next'] = next_url

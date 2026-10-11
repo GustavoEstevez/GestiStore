@@ -89,6 +89,14 @@ class LoginDosFactoresTests(TestCase):
         self.assertNotIn('_auth_user_id', self.client.session)
         self.assertIn('otp_code_hash', self.client.session)
 
+    def test_formulario_repetido_no_envia_otro_codigo(self):
+        primera_respuesta = self.iniciar_primer_factor()
+        segunda_respuesta = self.iniciar_primer_factor()
+
+        self.assertRedirects(primera_respuesta, reverse('verificar_2fa'))
+        self.assertRedirects(segunda_respuesta, reverse('verificar_2fa'))
+        self.assertEqual(len(mail.outbox), 1)
+
     def test_codigo_correcto_completa_login(self):
         self.iniciar_primer_factor()
         codigo = re.search(r'\b\d{6}\b', mail.outbox[0].body).group()
